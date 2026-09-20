@@ -65,12 +65,15 @@ def verify_onchain_payment(tx_hash: str) -> dict:
         if transfer_amount < 1000:
             return {"valid": False, "reason": f"Insufficient transfer amount: {transfer_amount} (minimum 1000 units required)."}
 
+        # Sadece bu satır eklendi: Ham 1000 birim verisini 6 decimal bölerek 0.001 USDC'ye dönüştürüyoruz
+        usdc_formatted_amount = transfer_amount / 1_000_000
+
         return {
             "valid": True,
             "tx_hash": tx_hash,
             "from": from_address,
             "to": GATEWAY_RECIPIENT_ADDRESS,
-            "amount": transfer_amount,
+            "amount": usdc_formatted_amount,
             "block_number": tx_receipt.get("blockNumber")
         }
 
