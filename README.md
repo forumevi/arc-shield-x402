@@ -30,3 +30,8 @@ ArcShield is an AI-driven security oracle built for Arc Mainnet, leveraging the 
 
 To run the end-to-end verification script:
 npx tsx scripts/test-e2e-payment.ts
+
+### 🤖 Verified Agent Wallet & On-Chain Proofs
+* **Autonomous Agent Wallet:** `0x292685C0e1572Ec472cD8d4a971C9F26e262E27d`
+* **Oracle Recipient Wallet:** `0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa`
+* **Sample Verified Settlement (USDC):** [View on Arc Explorer](https://explorer.arc.network/tx/0xa142d1553b68e1789f818aeb2ca25a07a1bef62c624809e9fc92a8dc82028bb0)
