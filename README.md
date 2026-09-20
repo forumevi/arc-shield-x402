@@ -1,5 +1,6 @@
 # 🛡️ ArcShield Gateway
-
+> **Live Demo (Frontend):** https://arc-shield-frontend.vercel.app  
+> **Frontend Repository:** https://github.com/forumevi/arc-shield-frontend
 ArcShield is an AI-driven security oracle built for Arc Mainnet, leveraging the x402 Protocol for micropayments and powered by Google Gemini AI. It serves as an automated security validation layer for AI Agents operating on-chain, compliant with the Circle Agent Stack.
 
 ## Key Features
