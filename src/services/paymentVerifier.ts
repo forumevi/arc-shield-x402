@@ -7,6 +7,7 @@ export interface PaymentVerificationResult {
 }
 
 const TRANSFER_EVENT_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const USDC_PRECOMPILE_ADDRESS = '0x3600000000000000000000000000000000000000';
 const MIN_AMOUNT_USDC_UNITS = 1000n; // 0.001 USDC (6 decimals)
 
 export async function verifyArcPayment(
@@ -16,7 +17,7 @@ export async function verifyArcPayment(
   try {
     const rpcUrl = process.env.ARC_RPC_URL || 'https://rpc.mainnet.arc.io';
     const targetRecipient = (expectedRecipient || process.env.AGENT_WALLET_ADDRESS || '0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa').toLowerCase();
-    
+
     const provider = new ethers.JsonRpcProvider(rpcUrl);
     console.log(`[PaymentVerifier] RPC üzerinden TX sorgulanıyor: ${txHash}`);
 
@@ -31,14 +32,20 @@ export async function verifyArcPayment(
     }
 
     // Log'lar içerisinden hedeflenen Transfer event'ini doğrula
+    // ÖNEMLİ: Sadece gerçek USDC precompile kontratından gelen log'lar kabul edilir.
+    // Arc Mainnet, native/gas-token temsilcisi için ayrı bir Transfer log'u da yayınlıyor
+    // (farklı bir adresten, 18 decimal ile) — bu log'u görmezden gelmezsek yanlış miktar hesaplanır.
     let validPaymentFound = false;
     let actualAmount = 0n;
 
     for (const log of receipt.logs) {
-      if (log.topics && log.topics[0] === TRANSFER_EVENT_TOPIC && log.topics.length >= 3) {
+      if (
+        log.address.toLowerCase() === USDC_PRECOMPILE_ADDRESS &&
+        log.topics && log.topics[0] === TRANSFER_EVENT_TOPIC && log.topics.length >= 3
+      ) {
         // Topic 2: Alıcı adresi (32 bytes padding kaldırılıyor)
         const recipientInLog = '0x' + log.topics[2].slice(26).toLowerCase();
-        
+
         if (recipientInLog === targetRecipient) {
           actualAmount = BigInt(log.data);
           if (actualAmount >= MIN_AMOUNT_USDC_UNITS) {
@@ -51,9 +58,9 @@ export async function verifyArcPayment(
 
     if (!validPaymentFound) {
       console.error(`[PaymentVerifier] Doğrulama Başarısız! Alıcı: ${targetRecipient}, Bulunan Tutar: ${actualAmount}`);
-      return { 
-        valid: false, 
-        reason: 'Payment log not matching expected recipient or minimum amount (0.001 USDC).' 
+      return {
+        valid: false,
+        reason: 'Payment log not matching expected recipient or minimum amount (0.001 USDC).'
       };
     }
 
