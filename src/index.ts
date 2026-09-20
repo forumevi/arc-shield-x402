@@ -9,14 +9,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS Yapılandırması (Vercel ve Cloud Run Uyumlu)
+// Tüm Vercel origin'lerine ve custom header'lara izin ver
 app.use(cors({
-  origin: [
-    'https://frontend-8gcgla5as-forumevis-projects.vercel.app',
-    /\.vercel\.app$/
-  ],
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-payment-proof'],
+  origin: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-payment-proof', 'X-Requested-With'],
   credentials: true
 }));
 
