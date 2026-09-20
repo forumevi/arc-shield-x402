@@ -65,7 +65,7 @@ def verify_onchain_payment(tx_hash: str) -> dict:
         if transfer_amount < 1000:
             return {"valid": False, "reason": f"Insufficient transfer amount: {transfer_amount} (minimum 1000 units required)."}
 
-        # Sadece bu satır eklendi: Ham 1000 birim verisini 6 decimal bölerek 0.001 USDC'ye dönüştürüyoruz
+        # USDC Decimal Dönüşümü (1000 raw birim = 0.001 USDC)
         usdc_formatted_amount = transfer_amount / 1_000_000
 
         return {
