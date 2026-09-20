@@ -65,7 +65,7 @@ async function runE2E() {
 
   const receipt = await tx.wait();
   console.log(`✅ Transaction confirmed in Block #${receipt.blockNumber}`);
-  console.log(`🔗 Arc Explorer Link: https://explorer.arc.network/tx/${tx.hash}`);
+  console.log(`🔗 Arc Explorer Link: https://explorer.arc.io/tx/${tx.hash}`);
 
   console.log('\n3️⃣ Submitting payment proof (TX Hash) to Gateway for Gemini AI analysis...');
   const finalRes = await fetch(`${GATEWAY_URL}/api/v1/analyze`, {
