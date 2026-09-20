@@ -1,78 +1,30 @@
-# ArcShield x402 Security Oracle Gateway
+# 🛡️ ArcShield Gateway
 
-> **Build with Gemini XPRIZE Submission** | An autonomous, micropayment-gated AI Security Oracle built on Arc Mainnet, Circle Wallets, and Gemini 3.6 Flash.
-
----
-
-## Architecture & Flow
-```
-[ Client ] --(1) 0.001 USDC Payment--> [ Arc Mainnet ]
-    |                                        |
-    +--(2) POST /check + x-payment-proof ----+
-    v                                        v
-[ x402 Gateway ] <--(3) Verify Tx Receipt ---+
-    |
-(Success 200)
-    v
-[ Gemini 3.6 Flash Oracle ] --(4) Security Assessment--> [ Client ]
-```
-
-### Core Tech Stack
-- **AI Engine:** Google Gemini 3.6 Flash (@google/genai)
-- **Blockchain & Indexer:** Arc Mainnet & Arc Explorer REST API
-- **Wallet Infrastructure:** Circle Developer-Controlled Wallets
-- **Server Framework:** Express.js + TypeScript (Node.js)
-- **Monetization Standard:** x402 Micropayment Protocol (HTTP 402)
-
----
+ArcShield is an AI-driven security oracle built for Arc Mainnet, leveraging the x402 Protocol for micropayments and powered by Google Gemini AI. It serves as an automated security validation layer for AI Agents operating on-chain, compliant with the Circle Agent Stack.
 
 ## Key Features
-1. **x402 Payment Gate:** Enforces 0.001 USDC fee per API call using HTTP x-payment-proof headers.
-2. **On-Chain Verification:** Real-time transaction validation against Arc Mainnet endpoints.
-3. **AI Security Analysis:** Instant risk scoring, safety status (SAFE, WARNING, DANGEROUS), and threat summaries.
-4. **Graceful Degradation:** Ensures high availability even during upstream API limits or network drops.
 
----
+* x402 Micropayment Middleware: Implements dynamic HTTP 402 Payment Required headers requesting 0.001 USDC for security analysis queries.
+* On-Chain Log Proof Verification: Validates native USDC Transfer event logs directly from Arc Mainnet RPC receipts, verifying recipient 0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa and required amounts before processing requests.
+* Gemini 1.5 Flash AI Oracle: Delivers real-time risk scores, safety statuses (SAFE, WARNING, CRITICAL), threat analysis, and actionable security recommendations.
+* Circle Agent Stack Compliant: Designed for autonomous agent-to-agent transactions using standardized USDC micro-settlements.
 
-## Quick Start
+## Architecture Flow
 
-### 1. Installation & Environment
-```bash
-git clone https://github.com/your-username/arc-shield.git
-cd arc-shield/agent-gateway
-npm install
-```
+1. Client Request: Client sends POST /api/v1/analyze with target_address.
+2. x402 Handshake: Gateway responds with 402 Payment Required and payment requirements.
+3. On-Chain Payment: Client submits 0.001 USDC payment on Arc Mainnet and captures the transaction hash.
+4. Proof Submission: Client re-sends request with x-payment-proof: TX_HASH.
+5. Log Parsing & Verification: Gateway verifies receipt status and checks Transfer event logs.
+6. AI Analysis: Upon payment confirmation, Gemini 1.5 Flash evaluates the target address and returns the security report.
 
-Create .env file:
-```env
-PORT=3000
-GEMINI_API_KEY=your_gemini_api_key
-CIRCLE_API_KEY=your_circle_api_key
-AGENT_WALLET_ADDRESS=0x742d35Cc6634C0532925a3b844Bc454e4438f44e
-```
+## Live Gateway Endpoint
 
-### 2. Execution & Live Test
-```bash
-npx tsx src/index.ts
+* Base URL: [https://arc-shield-gateway-373439937684.europe-west1.run.app](https://arc-shield-gateway-373439937684.europe-west1.run.app)
+* Health Check: GET /health
+* Analyze Endpoint: POST /api/v1/analyze
 
-curl -X POST http://localhost:3000/api/v1/security/check \n  -H "Content-Type: application/json" \n  -H "x-payment-proof: 0xf86ca0bbdc340086bbc7ee57e9611a5e42f8a766a58602a1430e8cc14fc5ee14" \n  -d "{"target_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e", "chain_id": "arc-mainnet"}"
-```
+## E2E Verification
 
-### Sample Response (200 OK)
-```json
-{
-  "status": "SUCCESS",
-  "verified": true,
-  "target_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-  "chain_id": "arc-mainnet",
-  "risk_score": 0.1,
-  "safety_status": "SAFE",
-  "analysis_summary": "No malicious interaction patterns detected on Arc Mainnet.",
-  "timestamp": "2026-09-20T15:19:10.973Z"
-}
-```
-
----
-
-## License
-MIT License
+To run the end-to-end verification script:
+npx tsx scripts/test-e2e-payment.ts

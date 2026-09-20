@@ -1,1 +1,0 @@
-{"version":3,"file":"paymentVerifier.d.ts","sourceRoot":"","sources":["paymentVerifier.ts"],"names":[],"mappings":"AAKA,UAAU,kBAAkB;IAC1B,KAAK,EAAE,OAAO,CAAC;IACf,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,SAAS,CAAC,EAAE,GAAG,CAAC;CACjB;AAED,wBAAsB,gBAAgB,CAAC,MAAM,EAAE,MAAM,EAAE,gBAAgB,EAAE,MAAM,GAAG,OAAO,CAAC,kBAAkB,CAAC,CAyB5G"}
