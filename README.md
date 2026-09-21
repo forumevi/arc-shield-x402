@@ -54,7 +54,7 @@ ubuntu@vcn-20260830-0001:~/arc-shield/agent-gateway$ npx tsx scripts/test-e2e-pa
 ⏳ Broadcasting transaction to Arc Mainnet block...
 TX Hash: 0x1df472849682cf748a606dd3d8a119d32f27c9e613b5ca01d2495f6e44503c8c
 ✅ Transaction confirmed in Block #21918289
-🔗 Arc Explorer Link: [https://explorer.arc.network/tx/0x1df472849682cf748a606dd3d8a119d32f27c9e613b5ca01d2495f6e44503c8c](https://explorer.arc.network/tx/0x1df472849682cf748a606dd3d8a119d32f27c9e613b5ca01d2495f6e44503c8c)
+🔗 Arc Explorer Link: [https://explorer.arc.io/tx/0x1df472849682cf748a606dd3d8a119d32f27c9e613b5ca01d2495f6e44503c8c](https://explorer.arc.io/tx/0x1df472849682cf748a606dd3d8a119d32f27c9e613b5ca01d2495f6e44503c8c)
 3️⃣ Submitting payment proof (TX Hash) to Gateway for Gemini AI analysis...
 🎉 [SUCCESS] x402 Payment Verified & Gemini AI Analysis Received!
 ----------------------------------------------------
