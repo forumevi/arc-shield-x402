@@ -86,4 +86,4 @@ TX Hash: 0x1df472849682cf748a606dd3d8a119d32f27c9e613b5ca01d2495f6e44503c8c
 ### 🤖 Verified Agent Wallet & On-Chain Proofs
 * **Autonomous Agent Wallet:** `0x292685C0e1572Ec472cD8d4a971C9F26e262E27d`
 * **Oracle Recipient Wallet:** `0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa`
-* **Sample Verified Settlement (USDC):** [View on Arc Explorer](https://explorer.arc.network/tx/0xa142d1553b68e1789f818aeb2ca25a07a1bef62c624809e9fc92a8dc82028bb0)
+* **Sample Verified Settlement (USDC):** [View on Arc Explorer](https://explorer.arc.io/tx/0xa142d1553b68e1789f818aeb2ca25a07a1bef62c624809e9fc92a8dc82028bb0)
