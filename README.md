@@ -7,7 +7,7 @@ ArcShield is an AI-driven security oracle built for Arc Mainnet, leveraging the 
 ## Key Features
 
 * x402 Micropayment Middleware: Implements dynamic HTTP 402 Payment Required headers requesting 0.001 USDC for security analysis queries.
-* On-Chain Log Proof Verification: Validates native USDC Transfer event logs directly from Arc Mainnet RPC receipts, verifying recipient 0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa and required amounts before processing requests.
+* On-Chain Log Proof Verification: Validates native USDC Transfer event logs directly from Arc Mainnet RPC receipts, verifying recipient and required amounts. RPC failure always returns a hard rejection — no fallback bypass. 0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa and required amounts before processing requests.
 * Gemini 1.5 Flash AI Oracle: Delivers real-time risk scores, safety statuses (SAFE, WARNING, CRITICAL), threat analysis, and actionable security recommendations.
 * Circle Agent Stack Compliant: Designed for autonomous agent-to-agent transactions using standardized USDC micro-settlements.
 
@@ -23,7 +23,7 @@ ArcShield is an AI-driven security oracle built for Arc Mainnet, leveraging the 
 ## Live Gateway Endpoint
 
 * Base URL: [https://arc-shield-gateway-373439937684.europe-west1.run.app](https://arc-shield-gateway-373439937684.europe-west1.run.app)
-* Health Check: GET /health
+* Health Check: `GET /health` — returns service status and Circle SDK connection state
 * Analyze Endpoint: POST /api/v1/analyze
 
 ## E2E Verification
