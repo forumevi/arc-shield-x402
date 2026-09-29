@@ -6,8 +6,8 @@ export interface PaymentVerificationResult {
   txDetails?: any;
 }
 
-const USDC_PRECOMPILE_ADDRESS = '0xfffffffffffffffffffffffffffffffffffffffe';
-const MIN_AMOUNT_USDC_UNITS = 1000000000000000n; // 0.001 USDC (18 decimals)
+const TRANSFER_EVENT_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const USDC_PRECOMPILE_ADDRESS = '0x3600000000000000000000000000000000000000';
 const MIN_AMOUNT_USDC_UNITS = 1000n; // 0.001 USDC (6 decimals)
 
 export async function verifyArcPayment(
@@ -73,7 +73,7 @@ export async function verifyArcPayment(
         blockNumber: receipt.blockNumber,
         from: receipt.from,
         to: targetRecipient,
-        amountUSDC: Number(actualAmount) / 1e18
+        amountUSDC: Number(actualAmount) / 1000000
       },
     };
   } catch (error: any) {
