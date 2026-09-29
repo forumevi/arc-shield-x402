@@ -1,15 +1,14 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { x402Middleware } from './middleware/x402';
-import { analyzeSecurityTarget } from './services/geminiOracle';
+import { x402Middleware } from './middleware/x402.js';
+import { analyzeSecurityTarget } from './services/geminiOracle.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Tüm Vercel origin'lerine ve custom header'lara izin ver
 app.use(cors({
   origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -19,16 +18,16 @@ app.use(cors({
 
 app.use(express.json());
 
-// Public Sağlık Kontrolü Endpoint'i
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'ok',
     service: 'ArcShield x402 Security Oracle Gateway',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    features: ['onchain-context', 'threat-intel', 'function-signatures']
   });
 });
 
-// Güvenlik Analizi Endpoint'i (x402 Micropayment Korumalı)
 app.post('/api/v1/analyze', x402Middleware, async (req: Request, res: Response) => {
   try {
     const { target_address, chain_id } = req.body;
@@ -51,5 +50,5 @@ app.post('/api/v1/analyze', x402Middleware, async (req: Request, res: Response) 
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 ArcShield Gateway running on port ${PORT}`);
+  console.log(`🚀 ArcShield Gateway v2.0 running on port ${PORT}`);
 });

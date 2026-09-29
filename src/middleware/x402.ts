@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyArcPayment } from '../services/paymentVerifier';
 
-const AGENT_WALLET_ADDRESS = process.env.AGENT_WALLET_ADDRESS || '0x742d35Cc6634C0532925a3b844Bc454e4438f44e';
+const AGENT_WALLET_ADDRESS = process.env.AGENT_WALLET_ADDRESS || '0x95773C1f40B82DD8D0529471f6A6016fdfE990Aa';
 
 export async function x402Middleware(req: Request, res: Response, next: NextFunction) {
   const paymentProof = req.headers['x-payment-proof'] as string;
