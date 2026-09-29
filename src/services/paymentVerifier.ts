@@ -7,8 +7,15 @@ export interface PaymentVerificationResult {
 }
 
 const TRANSFER_EVENT_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-const USDC_PRECOMPILE_ADDRESS = '0x3600000000000000000000000000000000000000';
-const MIN_AMOUNT_USDC_UNITS = 1000n; // 0.001 USDC (6 decimals)
+
+// Arc Mainnet'te iki farklı USDC transfer log adresi olabilir:
+// - 0xffff...fffe : native USDC precompile (18 decimals) — cüzdanlar genellikle bunu kullanır
+// - 0x3600...0000 : ERC-20 USDC precompile (6 decimals)
+// Her ikisini de kabul ediyoruz, decimal'i adrese göre hesaplıyoruz.
+const USDC_NATIVE_PRECOMPILE   = '0xfffffffffffffffffffffffffffffffffffffffe'; // 18 dec
+const USDC_ERC20_PRECOMPILE    = '0x3600000000000000000000000000000000000000'; // 6 dec
+const MIN_AMOUNT_NATIVE        = 1000000000000000n; // 0.001 USDC × 1e18
+const MIN_AMOUNT_ERC20         = 1000n;             // 0.001 USDC × 1e6
 
 export async function verifyArcPayment(
   txHash: string,
@@ -31,25 +38,31 @@ export async function verifyArcPayment(
       return { valid: false, reason: 'Transaction failed on-chain.' };
     }
 
-    // Log'lar içerisinden hedeflenen Transfer event'ini doğrula
-    // ÖNEMLİ: Sadece gerçek USDC precompile kontratından gelen log'lar kabul edilir.
-    // Arc Mainnet, native/gas-token temsilcisi için ayrı bir Transfer log'u da yayınlıyor
-    // (farklı bir adresten, 18 decimal ile) — bu log'u görmezden gelmezsek yanlış miktar hesaplanır.
     let validPaymentFound = false;
-    let actualAmount = 0n;
+    let actualAmountUSDC = 0;
 
     for (const log of receipt.logs) {
+      const logAddress = log.address.toLowerCase();
+
+      const isNative = logAddress === USDC_NATIVE_PRECOMPILE;
+      const isERC20  = logAddress === USDC_ERC20_PRECOMPILE;
+
       if (
-        log.address.toLowerCase() === USDC_PRECOMPILE_ADDRESS &&
-        log.topics && log.topics[0] === TRANSFER_EVENT_TOPIC && log.topics.length >= 3
+        (isNative || isERC20) &&
+        log.topics?.[0] === TRANSFER_EVENT_TOPIC &&
+        log.topics.length >= 3
       ) {
-        // Topic 2: Alıcı adresi (32 bytes padding kaldırılıyor)
         const recipientInLog = '0x' + log.topics[2].slice(26).toLowerCase();
 
         if (recipientInLog === targetRecipient) {
-          actualAmount = BigInt(log.data);
-          if (actualAmount >= MIN_AMOUNT_USDC_UNITS) {
+          const rawAmount = BigInt(log.data);
+          const minAmount = isNative ? MIN_AMOUNT_NATIVE : MIN_AMOUNT_ERC20;
+          const divisor   = isNative ? 1e18 : 1e6;
+
+          if (rawAmount >= minAmount) {
             validPaymentFound = true;
+            actualAmountUSDC  = Number(rawAmount) / divisor;
+            console.log(`[PaymentVerifier] Geçerli ödeme bulundu — kaynak: ${isNative ? 'native' : 'ERC-20'}, miktar: ${actualAmountUSDC} USDC`);
             break;
           }
         }
@@ -57,7 +70,7 @@ export async function verifyArcPayment(
     }
 
     if (!validPaymentFound) {
-      console.error(`[PaymentVerifier] Doğrulama Başarısız! Alıcı: ${targetRecipient}, Bulunan Tutar: ${actualAmount}`);
+      console.error(`[PaymentVerifier] Doğrulama Başarısız! Alıcı: ${targetRecipient}`);
       return {
         valid: false,
         reason: 'Payment log not matching expected recipient or minimum amount (0.001 USDC).'
@@ -73,14 +86,14 @@ export async function verifyArcPayment(
         blockNumber: receipt.blockNumber,
         from: receipt.from,
         to: targetRecipient,
-        amountUSDC: Number(actualAmount) / 1000000
+        amountUSDC: actualAmountUSDC
       },
     };
   } catch (error: any) {
     console.error('[PaymentVerifier] RPC Ödeme Doğrulama Hatası:', error);
     return {
       valid: false,
-      reason: error?.message || 'RPC verification failed.',
+      reason: `RPC verification failed: ${error?.message || 'unknown error'}. Payment cannot be confirmed without on-chain proof.`,
     };
   }
 }
