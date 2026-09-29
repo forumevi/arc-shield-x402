@@ -7,15 +7,7 @@ export interface PaymentVerificationResult {
 }
 
 const TRANSFER_EVENT_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-
-// Arc Mainnet'te iki farklı USDC transfer log adresi olabilir:
-// - 0xffff...fffe : native USDC precompile (18 decimals) — cüzdanlar genellikle bunu kullanır
-// - 0x3600...0000 : ERC-20 USDC precompile (6 decimals)
-// Her ikisini de kabul ediyoruz, decimal'i adrese göre hesaplıyoruz.
-const USDC_NATIVE_PRECOMPILE   = '0xfffffffffffffffffffffffffffffffffffffffe'; // 18 dec
-const USDC_ERC20_PRECOMPILE    = '0x3600000000000000000000000000000000000000'; // 6 dec
-const MIN_AMOUNT_NATIVE        = 1000000000000000n; // 0.001 USDC × 1e18
-const MIN_AMOUNT_ERC20         = 1000n;             // 0.001 USDC × 1e6
+const MIN_AMOUNT_USDC_UNITS = 1000n; // 0.001 USDC (6 decimals)
 
 export async function verifyArcPayment(
   txHash: string,
@@ -39,16 +31,10 @@ export async function verifyArcPayment(
     }
 
     let validPaymentFound = false;
-    let actualAmountUSDC = 0;
+    let actualAmount = 0n;
 
     for (const log of receipt.logs) {
-      const logAddress = log.address.toLowerCase();
-
-      const isNative = logAddress === USDC_NATIVE_PRECOMPILE;
-      const isERC20  = logAddress === USDC_ERC20_PRECOMPILE;
-
       if (
-        (isNative || isERC20) &&
         log.topics?.[0] === TRANSFER_EVENT_TOPIC &&
         log.topics.length >= 3
       ) {
@@ -56,13 +42,9 @@ export async function verifyArcPayment(
 
         if (recipientInLog === targetRecipient) {
           const rawAmount = BigInt(log.data);
-          const minAmount = isNative ? MIN_AMOUNT_NATIVE : MIN_AMOUNT_ERC20;
-          const divisor   = isNative ? 1e18 : 1e6;
-
-          if (rawAmount >= minAmount) {
+          if (rawAmount >= MIN_AMOUNT_USDC_UNITS) {
             validPaymentFound = true;
-            actualAmountUSDC  = Number(rawAmount) / divisor;
-            console.log(`[PaymentVerifier] Geçerli ödeme bulundu — kaynak: ${isNative ? 'native' : 'ERC-20'}, miktar: ${actualAmountUSDC} USDC`);
+            actualAmount = rawAmount;
             break;
           }
         }
@@ -86,14 +68,14 @@ export async function verifyArcPayment(
         blockNumber: receipt.blockNumber,
         from: receipt.from,
         to: targetRecipient,
-        amountUSDC: actualAmountUSDC
+        amountUSDC: Number(actualAmount) / 1000000
       },
     };
   } catch (error: any) {
     console.error('[PaymentVerifier] RPC Ödeme Doğrulama Hatası:', error);
     return {
       valid: false,
-      reason: `RPC verification failed: ${error?.message || 'unknown error'}. Payment cannot be confirmed without on-chain proof.`,
+      reason: error?.message || 'RPC verification failed.',
     };
   }
 }
